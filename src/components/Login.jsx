@@ -47,10 +47,6 @@ export default function Login({ members, onLogin }) {
           </button>
         </form>
 
-        <hr className="divider" />
-        <p style={{ fontSize: 12, color: 'var(--muted)', textAlign: 'center' }}>
-          Testdata: Andel 1 = Admin (PIN: 1111) · Andel 2 (PIN: 2222) osv.
-        </p>
       </div>
     </div>
   )
