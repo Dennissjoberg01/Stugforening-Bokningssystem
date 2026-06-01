@@ -262,15 +262,18 @@ export default function TurordningView({
                   <span style={{ minWidth: 180, fontSize: 14 }}>
                     <strong>Andel {m.id}</strong> — {m.name}
                   </span>
+                  <span style={{ fontSize: 13, color: 'var(--muted)', fontFamily: 'monospace', minWidth: 50 }}>
+                    {currentPin}
+                  </span>
                   <input
                     type="text"
                     value={draft}
-                    placeholder={`Nuvarande: ${currentPin}`}
+                    placeholder="Nytt PIN"
                     onChange={e => setPinEdits(prev => ({ ...prev, [m.id]: e.target.value }))}
                     onKeyDown={e => e.key === 'Enter' && handlePinSave(m.id)}
                     style={{
                       border: '1px solid var(--border)', borderRadius: 8, padding: '6px 10px',
-                      fontSize: 14, width: 140, fontFamily: 'monospace'
+                      fontSize: 14, width: 120, fontFamily: 'monospace'
                     }}
                   />
                   <button
