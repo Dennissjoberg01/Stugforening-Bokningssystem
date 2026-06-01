@@ -70,36 +70,39 @@ export function getWinterWeeks(year) {
   ]
 }
 
-// Sommarveckor: v.22–48 (jun–nov), totalt 27 veckor
-export const SUMMER_WEEKS = [
-  { n: 22, label: "v.22", dates: "26 maj – 1 jun" },
-  { n: 23, label: "v.23", dates: "2 – 8 jun" },
-  { n: 24, label: "v.24", dates: "9 – 15 jun" },
-  { n: 25, label: "v.25", dates: "16 – 22 jun" },
-  { n: 26, label: "v.26", dates: "23 – 29 jun" },
-  { n: 27, label: "v.27", dates: "30 jun – 6 jul" },
-  { n: 28, label: "v.28", dates: "7 – 13 jul" },
-  { n: 29, label: "v.29", dates: "14 – 20 jul" },
-  { n: 30, label: "v.30", dates: "21 – 27 jul" },
-  { n: 31, label: "v.31", dates: "28 jul – 3 aug" },
-  { n: 32, label: "v.32", dates: "4 – 10 aug" },
-  { n: 33, label: "v.33", dates: "11 – 17 aug" },
-  { n: 34, label: "v.34", dates: "18 – 24 aug" },
-  { n: 35, label: "v.35", dates: "25 – 31 aug" },
-  { n: 36, label: "v.36", dates: "1 – 7 sep" },
-  { n: 37, label: "v.37", dates: "8 – 14 sep" },
-  { n: 38, label: "v.38", dates: "15 – 21 sep" },
-  { n: 39, label: "v.39", dates: "22 – 28 sep" },
-  { n: 40, label: "v.40", dates: "29 sep – 5 okt" },
-  { n: 41, label: "v.41", dates: "6 – 12 okt" },
-  { n: 42, label: "v.42", dates: "13 – 19 okt" },
-  { n: 43, label: "v.43", dates: "20 – 26 okt" },
-  { n: 44, label: "v.44", dates: "27 okt – 2 nov" },
-  { n: 45, label: "v.45", dates: "3 – 9 nov" },
-  { n: 46, label: "v.46", dates: "10 – 16 nov" },
-  { n: 47, label: "v.47", dates: "17 – 23 nov" },
-  { n: 48, label: "v.48", dates: "24 – 30 nov" },
-];
+// Sommarveckor: v.22–48 (jun–nov), totalt 27 veckor — alla tillhör samma år
+export function getSummerWeeks(year) {
+  const y = year
+  return [
+    { n: 22, label: "v.22", dates: `26 maj – 1 jun ${y}` },
+    { n: 23, label: "v.23", dates: `2 – 8 jun ${y}` },
+    { n: 24, label: "v.24", dates: `9 – 15 jun ${y}` },
+    { n: 25, label: "v.25", dates: `16 – 22 jun ${y}` },
+    { n: 26, label: "v.26", dates: `23 – 29 jun ${y}` },
+    { n: 27, label: "v.27", dates: `30 jun – 6 jul ${y}` },
+    { n: 28, label: "v.28", dates: `7 – 13 jul ${y}` },
+    { n: 29, label: "v.29", dates: `14 – 20 jul ${y}` },
+    { n: 30, label: "v.30", dates: `21 – 27 jul ${y}` },
+    { n: 31, label: "v.31", dates: `28 jul – 3 aug ${y}` },
+    { n: 32, label: "v.32", dates: `4 – 10 aug ${y}` },
+    { n: 33, label: "v.33", dates: `11 – 17 aug ${y}` },
+    { n: 34, label: "v.34", dates: `18 – 24 aug ${y}` },
+    { n: 35, label: "v.35", dates: `25 – 31 aug ${y}` },
+    { n: 36, label: "v.36", dates: `1 – 7 sep ${y}` },
+    { n: 37, label: "v.37", dates: `8 – 14 sep ${y}` },
+    { n: 38, label: "v.38", dates: `15 – 21 sep ${y}` },
+    { n: 39, label: "v.39", dates: `22 – 28 sep ${y}` },
+    { n: 40, label: "v.40", dates: `29 sep – 5 okt ${y}` },
+    { n: 41, label: "v.41", dates: `6 – 12 okt ${y}` },
+    { n: 42, label: "v.42", dates: `13 – 19 okt ${y}` },
+    { n: 43, label: "v.43", dates: `20 – 26 okt ${y}` },
+    { n: 44, label: "v.44", dates: `27 okt – 2 nov ${y}` },
+    { n: 45, label: "v.45", dates: `3 – 9 nov ${y}` },
+    { n: 46, label: "v.46", dates: `10 – 16 nov ${y}` },
+    { n: 47, label: "v.47", dates: `17 – 23 nov ${y}` },
+    { n: 48, label: "v.48", dates: `24 – 30 nov ${y}` },
+  ]
+}
 
 // Roterar listan 3 steg uppåt (de 3 översta hamnar längst ned)
 export function rotateOrder(order) {
