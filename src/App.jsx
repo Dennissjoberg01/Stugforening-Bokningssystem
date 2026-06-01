@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import {
-  MEMBERS, WINTER_WEEKS, SUMMER_WEEKS,
+  MEMBERS, getWinterWeeks, SUMMER_WEEKS,
   INITIAL_ORDER_WINTER, INITIAL_ORDER_SUMMER,
   rotateOrder,
 } from './data.js'
@@ -207,12 +207,15 @@ export default function App() {
     setState(prev => ({ ...prev, year: newYear, winterOrder: newWinter, summerOrder: newSummer, bookings: {} }))
   }
 
+  // ── Veckodefinitioner med rätt årstal ──
+  const winterWeeks = getWinterWeeks(state?.year ?? 2025)
+
   // ── E-post (simulerad) ──
   const members = state?.members ?? []
 
   function sendCancellationEmail(bookingKey, byName) {
     const season = bookingKey.startsWith('winter') ? 'vinter' : 'sommar'
-    const weeks = bookingKey.startsWith('winter') ? WINTER_WEEKS : SUMMER_WEEKS
+    const weeks = bookingKey.startsWith('winter') ? winterWeeks : SUMMER_WEEKS
     const weekInfo = weeks.find(w => `winter_w${w.n}` === bookingKey || `summer_w${w.n}` === bookingKey)
     console.log(`📧 [SIMULERAD E-POST] till alla: "${byName} har avbokat sin ${season}vecka ${weekInfo?.label}."`)
   }
@@ -264,7 +267,7 @@ export default function App() {
             state={state}
             currentUser={currentUser}
             members={members}
-            winterWeeks={WINTER_WEEKS}
+            winterWeeks={winterWeeks}
             summerWeeks={SUMMER_WEEKS}
             onBookFree={handleBookFree}
             isWinterLocked={isWinterLocked}
@@ -294,7 +297,7 @@ export default function App() {
             state={state}
             currentUser={currentUser}
             members={members}
-            winterWeeks={WINTER_WEEKS}
+            winterWeeks={winterWeeks}
             summerWeeks={SUMMER_WEEKS}
             onCancel={handleCancel}
             onBookFree={handleBookFree}

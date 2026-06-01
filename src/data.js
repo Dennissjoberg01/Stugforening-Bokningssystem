@@ -36,34 +36,39 @@ export const INITIAL_ORDER_SUMMER = [11,12,13,14,15,16,17,18,19,20,21,1,2,3,4,5,
 
 // Veckodefinitioner — vinterveckor = dec–maj (v.1–21 + v.49–52), sommarveckor = jun–nov (v.22–48)
 
-// Vinterveckor: v.1–21 (jan–maj) + v.49–52 (dec), totalt 25 veckor
-export const WINTER_WEEKS = [
-  { n: 1,  label: "v.1",  dates: "30 dec – 5 jan" },
-  { n: 2,  label: "v.2",  dates: "6 – 12 jan" },
-  { n: 3,  label: "v.3",  dates: "13 – 19 jan" },
-  { n: 4,  label: "v.4",  dates: "20 – 26 jan" },
-  { n: 5,  label: "v.5",  dates: "27 jan – 2 feb" },
-  { n: 6,  label: "v.6",  dates: "3 – 9 feb" },
-  { n: 7,  label: "v.7",  dates: "10 – 16 feb" },
-  { n: 8,  label: "v.8",  dates: "17 – 23 feb" },
-  { n: 9,  label: "v.9",  dates: "24 feb – 2 mar" },
-  { n: 10, label: "v.10", dates: "3 – 9 mar" },
-  { n: 11, label: "v.11", dates: "10 – 16 mar" },
-  { n: 12, label: "v.12", dates: "17 – 23 mar" },
-  { n: 13, label: "v.13", dates: "24 – 30 mar" },
-  { n: 14, label: "v.14", dates: "31 mar – 6 apr" },
-  { n: 15, label: "v.15", dates: "7 – 13 apr" },
-  { n: 16, label: "v.16", dates: "14 – 20 apr" },
-  { n: 17, label: "v.17", dates: "21 – 27 apr" },
-  { n: 18, label: "v.18", dates: "28 apr – 4 maj" },
-  { n: 19, label: "v.19", dates: "5 – 11 maj" },
-  { n: 20, label: "v.20", dates: "12 – 18 maj" },
-  { n: 21, label: "v.21", dates: "19 – 25 maj" },
-  { n: 49, label: "v.49", dates: "1 – 7 dec" },
-  { n: 50, label: "v.50", dates: "8 – 14 dec" },
-  { n: 51, label: "v.51", dates: "15 – 21 dec" },
-  { n: 52, label: "v.52", dates: "22 – 28 dec" },
-];
+// Vinterveckor: v.1–21 (jan–maj år+1) + v.49–52 (dec år), totalt 25 veckor
+// Tar emot säsongsåret (t.ex. 2025 → dec 2025 + jan–maj 2026)
+export function getWinterWeeks(year) {
+  const y  = year       // Dec tillhör detta år
+  const y1 = year + 1   // Jan–maj tillhör nästa år
+  return [
+    { n: 1,  label: "v.1",  dates: `30 dec ${y} – 5 jan ${y1}` },
+    { n: 2,  label: "v.2",  dates: `6 – 12 jan ${y1}` },
+    { n: 3,  label: "v.3",  dates: `13 – 19 jan ${y1}` },
+    { n: 4,  label: "v.4",  dates: `20 – 26 jan ${y1}` },
+    { n: 5,  label: "v.5",  dates: `27 jan – 2 feb ${y1}` },
+    { n: 6,  label: "v.6",  dates: `3 – 9 feb ${y1}` },
+    { n: 7,  label: "v.7",  dates: `10 – 16 feb ${y1}` },
+    { n: 8,  label: "v.8",  dates: `17 – 23 feb ${y1}` },
+    { n: 9,  label: "v.9",  dates: `24 feb – 2 mar ${y1}` },
+    { n: 10, label: "v.10", dates: `3 – 9 mar ${y1}` },
+    { n: 11, label: "v.11", dates: `10 – 16 mar ${y1}` },
+    { n: 12, label: "v.12", dates: `17 – 23 mar ${y1}` },
+    { n: 13, label: "v.13", dates: `24 – 30 mar ${y1}` },
+    { n: 14, label: "v.14", dates: `31 mar – 6 apr ${y1}` },
+    { n: 15, label: "v.15", dates: `7 – 13 apr ${y1}` },
+    { n: 16, label: "v.16", dates: `14 – 20 apr ${y1}` },
+    { n: 17, label: "v.17", dates: `21 – 27 apr ${y1}` },
+    { n: 18, label: "v.18", dates: `28 apr – 4 maj ${y1}` },
+    { n: 19, label: "v.19", dates: `5 – 11 maj ${y1}` },
+    { n: 20, label: "v.20", dates: `12 – 18 maj ${y1}` },
+    { n: 21, label: "v.21", dates: `19 – 25 maj ${y1}` },
+    { n: 49, label: "v.49", dates: `1 – 7 dec ${y}` },
+    { n: 50, label: "v.50", dates: `8 – 14 dec ${y}` },
+    { n: 51, label: "v.51", dates: `15 – 21 dec ${y}` },
+    { n: 52, label: "v.52", dates: `22 – 28 dec ${y}` },
+  ]
+}
 
 // Sommarveckor: v.22–48 (jun–nov), totalt 27 veckor
 export const SUMMER_WEEKS = [
