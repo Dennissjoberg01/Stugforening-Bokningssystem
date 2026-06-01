@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p /Users/dennissjoberg/Desktop/stugforeningen/.claude)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(npx vite *)",
+      "Bash(npm install *)",
+      "Bash(npm list *)"
+    ]
+  }
+}
