@@ -45,6 +45,9 @@ export default function Login({ members, onLogin }) {
           <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: '1rem' }}>
             Logga in
           </button>
+          <p style={{ fontSize: 12, color: 'var(--muted)', textAlign: 'center', marginTop: '1rem' }}>
+            Kontakta administratören om du glömt din PIN-kod
+          </p>
         </form>
 
       </div>
