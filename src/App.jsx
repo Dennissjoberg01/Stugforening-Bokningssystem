@@ -130,8 +130,6 @@ export default function App() {
       if (!isLocked) {
         if (getCurrentTurnId(season) !== currentUser.id) return
         if (hasPrimaryBooking(season)) return
-      } else {
-        if (hasExtraBooking(season)) return
       }
     }
 

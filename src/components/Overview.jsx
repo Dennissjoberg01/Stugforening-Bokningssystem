@@ -9,9 +9,7 @@ function SeasonBanner({ season, isLocked, isMyTurn, hasPrimary, hasExtra, turnNa
     return (
       <div className="notice notice-warn" style={{ marginBottom: '0.75rem', fontSize: 13 }}>
         🔒 Bokningsperioden är stängd.
-        {hasExtra
-          ? ' Du har redan bokat en extra vecka.'
-          : ' Lediga veckor kan bokas som extra vecka.'}
+        {' Lediga veckor kan bokas som extra veckor utan begränsning.'}
       </div>
     )
   }
@@ -62,8 +60,7 @@ function WeekList({
             else if (!isMyTurn) blockReason = 'not-your-turn'
             else canBook = true
           } else {
-            if (hasExtra) blockReason = 'already-extra'
-            else canBook = true
+            canBook = true
           }
         }
 
@@ -87,7 +84,6 @@ function WeekList({
         const title =
           blockReason === 'already-primary' ? 'Du har redan bokat din vecka denna säsong' :
           blockReason === 'not-your-turn' ? 'Väntar på din tur i turordningen' :
-          blockReason === 'already-extra' ? 'Du har redan bokat en extra vecka' :
           canBook ? 'Klicka för att boka' : ''
 
         return (

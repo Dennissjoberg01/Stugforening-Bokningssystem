@@ -181,33 +181,25 @@ export default function MinSida({
   )
 }
 
-function ExtraPool({ label, weeks, hasExtra, isAdmin, onBook }) {
+function ExtraPool({ label, weeks, onBook }) {
   return (
     <>
       <h3 style={{ fontFamily: 'Lora,serif', fontSize: '1.1rem', margin: '1.5rem 0 0.5rem' }}>
         {label} <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--amber)' }}>— extra veckor</span>
       </h3>
       <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: '0.75rem' }}>
-        {hasExtra && !isAdmin
-          ? 'Du har redan bokat en extra vecka denna säsong.'
-          : 'Lediga veckor som kan bokas utöver din ordinarie bokning (max 1 extra per säsong).'}
+        Lediga veckor som kan bokas utöver din ordinarie bokning.
       </p>
       <div className="my-bookings-list">
-        {weeks.map(w => {
-          const blocked = !isAdmin && hasExtra
-          return (
-            <div key={w.key} className="my-booking-card" style={{ background: blocked ? 'var(--warm)' : 'var(--amber-bg)', opacity: blocked ? 0.65 : 1 }}>
-              <div className="my-booking-info">
-                <div className="my-booking-week">{w.seasonLabel} {w.label}</div>
-                <div className="my-booking-dates">{w.dates}</div>
-              </div>
-              {blocked
-                ? <span style={{ fontSize: 12, color: 'var(--muted)' }}>Redan bokad</span>
-                : <button className="btn btn-sm" style={{ background: 'var(--amber)', color: '#fff' }} onClick={() => onBook(w.key)}>Boka extra</button>
-              }
+        {weeks.map(w => (
+          <div key={w.key} className="my-booking-card" style={{ background: 'var(--amber-bg)' }}>
+            <div className="my-booking-info">
+              <div className="my-booking-week">{w.seasonLabel} {w.label}</div>
+              <div className="my-booking-dates">{w.dates}</div>
             </div>
-          )
-        })}
+            <button className="btn btn-sm" style={{ background: 'var(--amber)', color: '#fff' }} onClick={() => onBook(w.key)}>Boka extra</button>
+          </div>
+        ))}
       </div>
     </>
   )
