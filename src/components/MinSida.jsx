@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 export default function MinSida({
-  state, currentUser, members, winterWeeks, summerWeeks, onCancel, onBookFree,
+  state, currentUser, members, winterWeeks, summerWeeks, onCancel, onBookFree, onEarlyDeparture,
   isWinterLocked, isSummerLocked,
   hasPrimaryWinter, hasPrimarySummer,
   hasExtraWinter, hasExtraSummer,
@@ -9,6 +9,9 @@ export default function MinSida({
 }) {
   const [cancelConfirm, setCancelConfirm] = useState(null)
   const [cancelledNotice, setCancelledNotice] = useState(null)
+  const [earlyDepKey, setEarlyDepKey] = useState(null)   // vilken bokning är öppen
+  const [earlyDepDate, setEarlyDepDate] = useState('')
+  const [earlyDepSaved, setEarlyDepSaved] = useState(null)
 
   const allWeeks = [
     ...winterWeeks.map(w => ({ ...w, season: 'winter', key: `winter_w${w.n}`, seasonLabel: '❄️ Vintervecka' })),
@@ -110,9 +113,18 @@ export default function MinSida({
                   <div className="my-booking-dates">{w.dates}</div>
                 </div>
                 {!isCancelled && (
-                  <button className="btn btn-danger btn-sm" onClick={() => setCancelConfirm(w.key)}>
-                    Avboka
-                  </button>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    <button className="btn btn-danger btn-sm" onClick={() => setCancelConfirm(w.key)}>
+                      Avboka
+                    </button>
+                    <button
+                      className="btn btn-sm"
+                      style={{ background: 'var(--amber-bg)', color: 'var(--amber)', border: '1px solid var(--amber)' }}
+                      onClick={() => { setEarlyDepKey(w.key); setEarlyDepDate(bk?.earlyDeparture || '') }}
+                    >
+                      {bk?.earlyDeparture ? `Lämnar ${bk.earlyDeparture}` : 'Lämnar tidigt'}
+                    </button>
+                  </div>
                 )}
               </div>
             )
@@ -151,6 +163,53 @@ export default function MinSida({
           och lägg in din Service ID + Template ID i koden.
         </p>
       </div>
+
+      {/* Lämnar tidigt-dialog */}
+      {earlyDepKey && (
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }}
+          onClick={() => setEarlyDepKey(null)}
+        >
+          <div className="card card-pad" style={{ maxWidth: 360, width: '90%' }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ fontFamily: 'Lora,serif', marginBottom: 8 }}>Lämnar tidigt</h3>
+            <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 16, lineHeight: 1.6 }}>
+              Ange vilket datum du lämnar stugan. Den som har nästa vecka (eller alla om den är ledig) får ett mejl.
+            </p>
+            <input
+              type="date"
+              value={earlyDepDate}
+              onChange={e => setEarlyDepDate(e.target.value)}
+              style={{ border: '1px solid var(--border)', borderRadius: 8, padding: '8px 12px', fontSize: 14, width: '100%', marginBottom: 16 }}
+            />
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                className="btn btn-primary"
+                disabled={!earlyDepDate}
+                onClick={() => {
+                  onEarlyDeparture(earlyDepKey, earlyDepDate)
+                  setEarlyDepSaved(earlyDepKey)
+                  setEarlyDepKey(null)
+                  setTimeout(() => setEarlyDepSaved(null), 3000)
+                }}
+              >
+                Spara & skicka mejl
+              </button>
+              {state.bookings[earlyDepKey]?.earlyDeparture && (
+                <button className="btn" onClick={() => { onEarlyDeparture(earlyDepKey, null); setEarlyDepKey(null) }}>
+                  Ta bort
+                </button>
+              )}
+              <button className="btn" onClick={() => setEarlyDepKey(null)}>Avbryt</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {earlyDepSaved && (
+        <div className="notice notice-success" style={{ marginBottom: '1rem' }}>
+          ✓ Sparat! Mejl har skickats till berörd part (simulerat).
+        </div>
+      )}
 
       {/* Avboka-dialog */}
       {cancelConfirm && (

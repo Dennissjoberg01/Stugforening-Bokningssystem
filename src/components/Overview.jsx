@@ -73,7 +73,16 @@ function WeekList({
             </span>
           )
         } else if (isBooked) {
-          badge = <span className="badge badge-booked">Bokad</span>
+          badge = (
+            <span style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              <span className="badge badge-booked">Bokad</span>
+              {booking.earlyDeparture && (
+                <span className="badge" style={{ background: 'var(--amber-bg)', color: 'var(--amber)', fontSize: 11 }}>
+                  Lämnar {booking.earlyDeparture}
+                </span>
+              )}
+            </span>
+          )
         } else if (isLocked) {
           badge = <span className="badge" style={{ background: 'var(--amber-bg)', color: 'var(--amber)' }}>Extra vecka</span>
         } else {

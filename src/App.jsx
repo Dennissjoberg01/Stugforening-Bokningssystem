@@ -15,7 +15,7 @@ import MinSida from './components/MinSida.jsx'
 function rowsToState(settings, memberRows, bookingRows) {
   const bookings = {}
   for (const b of (bookingRows || [])) {
-    bookings[b.booking_key] = { memberId: b.member_id, cancelled: b.cancelled, isExtra: b.is_extra }
+    bookings[b.booking_key] = { memberId: b.member_id, cancelled: b.cancelled, isExtra: b.is_extra, earlyDeparture: b.early_departure ?? null }
   }
   return {
     year: settings.year,
@@ -157,6 +157,32 @@ export default function App() {
     }
   }
 
+  // ── Lämnar tidigt ──
+  async function handleEarlyDeparture(bookingKey, date) {
+    await supabase.from('bookings').update({ early_departure: date }).eq('booking_key', bookingKey)
+    setState(prev => ({
+      ...prev,
+      bookings: { ...prev.bookings, [bookingKey]: { ...prev.bookings[bookingKey], earlyDeparture: date } }
+    }))
+
+    // Hitta nästa vecka och rätt mottagare
+    const season = bookingKey.startsWith('winter') ? 'winter' : 'summer'
+    const weeks = season === 'winter' ? winterWeeks : summerWeeks
+    const weekN = parseInt(bookingKey.split('_w')[1])
+    const currentIdx = weeks.findIndex(w => w.n === weekN)
+    const nextWeek = weeks[currentIdx + 1]
+
+    if (nextWeek) {
+      const nextKey = `${season}_w${nextWeek.n}`
+      const nextBooking = state.bookings[nextKey]
+      if (nextBooking && !nextBooking.cancelled) {
+        sendEarlyDepartureEmail(date, nextBooking.memberId, currentUser.name)
+      } else {
+        sendEarlyDepartureEmailAll(date, currentUser.name)
+      }
+    }
+  }
+
   // ── Admin: uppdatera namn/e-post ──
   async function handleUpdateMember(memberId, fields) {
     if (!currentUser?.isAdmin) return
@@ -217,6 +243,15 @@ export default function App() {
     const weeks = bookingKey.startsWith('winter') ? winterWeeks : summerWeeks
     const weekInfo = weeks.find(w => `winter_w${w.n}` === bookingKey || `summer_w${w.n}` === bookingKey)
     console.log(`📧 [SIMULERAD E-POST] till alla: "${byName} har avbokat sin ${season}vecka ${weekInfo?.label}."`)
+  }
+
+  function sendEarlyDepartureEmail(date, memberId, fromName) {
+    const member = members.find(m => m.id === memberId)
+    console.log(`📧 [SIMULERAD E-POST] till ${member?.name} (${member?.email}):\n"${fromName} lämnar stugan tidigt den ${date}. Stugan är tillgänglig från det datumet!"`)
+  }
+
+  function sendEarlyDepartureEmailAll(date, fromName) {
+    console.log(`📧 [SIMULERAD E-POST] till alla medlemmar:\n"${fromName} lämnar stugan tidigt den ${date}. Veckan är ledig från det datumet — passa på att boka en extra vecka!"`)
   }
 
   function sendTurnEmail(season, memberId) {
@@ -300,6 +335,7 @@ export default function App() {
             summerWeeks={summerWeeks}
             onCancel={handleCancel}
             onBookFree={handleBookFree}
+            onEarlyDeparture={handleEarlyDeparture}
             isWinterLocked={isWinterLocked}
             isSummerLocked={isSummerLocked}
             hasPrimaryWinter={hasPW}
