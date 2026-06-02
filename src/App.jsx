@@ -58,9 +58,13 @@ export default function App() {
     const winterOrder = INITIAL_ORDER_WINTER
     const summerOrder = INITIAL_ORDER_SUMMER
 
+    // Skapa settings om den inte finns
     await supabase.from('settings').upsert({ id: 1, year, winter_order: winterOrder, summer_order: summerOrder })
+
+    // Lägg bara till medlemmar som INTE redan finns — skriv aldrig över befintliga uppgifter
     await supabase.from('members').upsert(
-      MEMBERS.map(m => ({ id: m.id, name: m.name, email: m.email, pin: m.pin }))
+      MEMBERS.map(m => ({ id: m.id, name: m.name, email: m.email, pin: m.pin })),
+      { onConflict: 'id', ignoreDuplicates: true }
     )
   }
 
