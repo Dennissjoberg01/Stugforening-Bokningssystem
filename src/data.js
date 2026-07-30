@@ -34,74 +34,60 @@ export const MEMBERS = [
 export const INITIAL_ORDER_WINTER = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21];
 export const INITIAL_ORDER_SUMMER = [11,12,13,14,15,16,17,18,19,20,21,1,2,3,4,5,6,7,8,9,10];
 
-// Veckodefinitioner — vinterveckor = dec–maj (v.1–21 + v.49–52), sommarveckor = jun–nov (v.22–48)
+// ── Hjälpfunktioner för veckoberäkning ──────────────────────────
 
-// Vinterveckor: v.1–21 (jan–maj år+1) + v.49–52 (dec år), totalt 25 veckor
-// Tar emot säsongsåret (t.ex. 2025 → dec 2025 + jan–maj 2026)
-export function getWinterWeeks(year) {
-  const y  = year       // Dec tillhör detta år
-  const y1 = year + 1   // Jan–maj tillhör nästa år
-  return [
-    { n: 1,  label: "v.1",  dates: `30 dec ${y} – 5 jan ${y1}` },
-    { n: 2,  label: "v.2",  dates: `6 – 12 jan ${y1}` },
-    { n: 3,  label: "v.3",  dates: `13 – 19 jan ${y1}` },
-    { n: 4,  label: "v.4",  dates: `20 – 26 jan ${y1}` },
-    { n: 5,  label: "v.5",  dates: `27 jan – 2 feb ${y1}` },
-    { n: 6,  label: "v.6",  dates: `3 – 9 feb ${y1}` },
-    { n: 7,  label: "v.7",  dates: `10 – 16 feb ${y1}` },
-    { n: 8,  label: "v.8",  dates: `17 – 23 feb ${y1}` },
-    { n: 9,  label: "v.9",  dates: `24 feb – 2 mar ${y1}` },
-    { n: 10, label: "v.10", dates: `3 – 9 mar ${y1}` },
-    { n: 11, label: "v.11", dates: `10 – 16 mar ${y1}` },
-    { n: 12, label: "v.12", dates: `17 – 23 mar ${y1}` },
-    { n: 13, label: "v.13", dates: `24 – 30 mar ${y1}` },
-    { n: 14, label: "v.14", dates: `31 mar – 6 apr ${y1}` },
-    { n: 15, label: "v.15", dates: `7 – 13 apr ${y1}` },
-    { n: 16, label: "v.16", dates: `14 – 20 apr ${y1}` },
-    { n: 17, label: "v.17", dates: `21 – 27 apr ${y1}` },
-    { n: 18, label: "v.18", dates: `28 apr – 4 maj ${y1}` },
-    { n: 19, label: "v.19", dates: `5 – 11 maj ${y1}` },
-    { n: 20, label: "v.20", dates: `12 – 18 maj ${y1}` },
-    { n: 21, label: "v.21", dates: `19 – 25 maj ${y1}` },
-    { n: 49, label: "v.49", dates: `1 – 7 dec ${y}` },
-    { n: 50, label: "v.50", dates: `8 – 14 dec ${y}` },
-    { n: 51, label: "v.51", dates: `15 – 21 dec ${y}` },
-    { n: 52, label: "v.52", dates: `22 – 28 dec ${y}` },
-  ]
+const MÅN = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec']
+
+// Returnerar måndagen för ISO-vecka N år Y
+function isoVeckaMåndag(år, vecka) {
+  const jan4 = new Date(år, 0, 4)
+  const dag = jan4.getDay() || 7          // mån=1 … sön=7
+  const v1Mån = new Date(jan4)
+  v1Mån.setDate(jan4.getDate() - dag + 1) // tillbaka till måndag
+  const mån = new Date(v1Mån)
+  mån.setDate(v1Mån.getDate() + (vecka - 1) * 7)
+  return mån
 }
 
-// Sommarveckor: v.22–48 (jun–nov), totalt 27 veckor — alla tillhör samma år
+// Ger söndag–söndag-perioden för ISO-veckan (sön innan t.o.m. sön efter)
+function söndagPeriod(måndag) {
+  const start = new Date(måndag)
+  start.setDate(måndag.getDate() - 1)     // söndag innan
+  const slut = new Date(start)
+  slut.setDate(start.getDate() + 7)       // nästa söndag
+  return { start, slut }
+}
+
+function datumText(start, slut) {
+  const sd = start.getDate(), sm = start.getMonth(), sy = start.getFullYear()
+  const ed = slut.getDate(),  em = slut.getMonth(),  ey = slut.getFullYear()
+  if (sy === ey && sm === em) return `${sd} – ${ed} ${MÅN[sm]} ${sy}`
+  if (sy === ey)              return `${sd} ${MÅN[sm]} – ${ed} ${MÅN[em]} ${sy}`
+  return `${sd} ${MÅN[sm]} ${sy} – ${ed} ${MÅN[em]} ${ey}`
+}
+
+// Vinterveckor: v.1–21 (jan–maj år+1) + v.49–52 (dec år), totalt 25 veckor
+export function getWinterWeeks(year) {
+  const veckor = []
+  for (const n of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21]) {
+    const { start, slut } = söndagPeriod(isoVeckaMåndag(year + 1, n))
+    veckor.push({ n, label: `v.${n}`, dates: datumText(start, slut) })
+  }
+  for (const n of [49,50,51,52]) {
+    const { start, slut } = söndagPeriod(isoVeckaMåndag(year, n))
+    veckor.push({ n, label: `v.${n}`, dates: datumText(start, slut) })
+  }
+  return veckor
+}
+
+// Sommarveckor: v.22–48 (maj–nov), totalt 27 veckor
 export function getSummerWeeks(year) {
-  const y = year
-  return [
-    { n: 22, label: "v.22", dates: `26 maj – 1 jun ${y}` },
-    { n: 23, label: "v.23", dates: `2 – 8 jun ${y}` },
-    { n: 24, label: "v.24", dates: `9 – 15 jun ${y}` },
-    { n: 25, label: "v.25", dates: `16 – 22 jun ${y}` },
-    { n: 26, label: "v.26", dates: `23 – 29 jun ${y}` },
-    { n: 27, label: "v.27", dates: `30 jun – 6 jul ${y}` },
-    { n: 28, label: "v.28", dates: `7 – 13 jul ${y}` },
-    { n: 29, label: "v.29", dates: `14 – 20 jul ${y}` },
-    { n: 30, label: "v.30", dates: `21 – 27 jul ${y}` },
-    { n: 31, label: "v.31", dates: `28 jul – 3 aug ${y}` },
-    { n: 32, label: "v.32", dates: `4 – 10 aug ${y}` },
-    { n: 33, label: "v.33", dates: `11 – 17 aug ${y}` },
-    { n: 34, label: "v.34", dates: `18 – 24 aug ${y}` },
-    { n: 35, label: "v.35", dates: `25 – 31 aug ${y}` },
-    { n: 36, label: "v.36", dates: `1 – 7 sep ${y}` },
-    { n: 37, label: "v.37", dates: `8 – 14 sep ${y}` },
-    { n: 38, label: "v.38", dates: `15 – 21 sep ${y}` },
-    { n: 39, label: "v.39", dates: `22 – 28 sep ${y}` },
-    { n: 40, label: "v.40", dates: `29 sep – 5 okt ${y}` },
-    { n: 41, label: "v.41", dates: `6 – 12 okt ${y}` },
-    { n: 42, label: "v.42", dates: `13 – 19 okt ${y}` },
-    { n: 43, label: "v.43", dates: `20 – 26 okt ${y}` },
-    { n: 44, label: "v.44", dates: `27 okt – 2 nov ${y}` },
-    { n: 45, label: "v.45", dates: `3 – 9 nov ${y}` },
-    { n: 46, label: "v.46", dates: `10 – 16 nov ${y}` },
-    { n: 47, label: "v.47", dates: `17 – 23 nov ${y}` },
-    { n: 48, label: "v.48", dates: `24 – 30 nov ${y}` },
-  ]
+  const veckor = []
+  for (let n = 22; n <= 48; n++) {
+    const { start, slut } = söndagPeriod(isoVeckaMåndag(year, n))
+    veckor.push({ n, label: `v.${n}`, dates: datumText(start, slut) })
+  }
+  return veckor
 }
 
 // Roterar listan 3 steg uppåt (de 3 översta hamnar längst ned)

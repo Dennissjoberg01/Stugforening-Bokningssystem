@@ -6,16 +6,16 @@ import {
 } from './data.js'
 import { supabase } from './supabase.js'
 import emailjs from '@emailjs/browser'
-
-const EJ_SERVICE = 'service_lk9fzfk'
-const EJ_TURN    = 'template_hcgatso'
-const EJ_NOTIFY  = 'template_v4uxcbb'
-const EJ_KEY     = 'Ff4tdAEELanj5_oiI'
 import Login from './components/Login.jsx'
 import Topbar from './components/Topbar.jsx'
 import Overview from './components/Overview.jsx'
 import TurordningView from './components/TurordningView.jsx'
 import MinSida from './components/MinSida.jsx'
+
+const EJ_SERVICE = 'service_lk9fzfk'
+const EJ_TURN    = 'template_hcgatso'
+const EJ_NOTIFY  = 'template_v4uxcbb'
+const EJ_KEY     = 'Ff4tdAEELanj5_oiI'
 
 // ── Konvertera DB-rader till appens state-format ──────────────
 function rowsToState(settings, memberRows, bookingRows) {
