@@ -10,7 +10,7 @@ import emailjs from '@emailjs/browser'
 const EJ_SERVICE = 'service_lk9fzfk'
 const EJ_TURN    = 'template_hcgatso'
 const EJ_NOTIFY  = 'template_v4uxcbb'
-emailjs.init('Ff4tdAEELanj5_oiI')
+const EJ_KEY     = 'Ff4tdAEELanj5_oiI'
 import Login from './components/Login.jsx'
 import Topbar from './components/Topbar.jsx'
 import Overview from './components/Overview.jsx'
@@ -274,7 +274,9 @@ export default function App() {
       to_name: toMember.name,
       to_email: toMember.email,
       ...params,
-    }).catch(err => console.error('E-post misslyckades:', err))
+    }, { publicKey: EJ_KEY })
+      .then(() => console.log('✅ Mejl skickat till', toMember.email))
+      .catch(err => console.error('❌ E-post misslyckades:', err))
   }
 
   function sendCancellationEmail(bookingKey, byName) {
