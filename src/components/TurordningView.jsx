@@ -3,10 +3,11 @@ import { useState, useRef } from 'react'
 export default function TurordningView({
   state, currentUser, members,
   onNextYear, onChangePin, onUpdateMember,
-  onReorderWinter, onReorderSummer,
+  onReorderWinter, onReorderSummer, onNotifySeason,
 }) {
   const [confirming, setConfirming] = useState(false)
   const [shifted, setShifted] = useState(false)
+  const [notifySent, setNotifySent] = useState(null)
 
   // PIN edits
   const [pinEdits, setPinEdits] = useState({})
@@ -176,6 +177,29 @@ export default function TurordningView({
           som var överst hamnar längst ned, och alla andra klättrar upp tre platser.
         </p>
       </div>
+
+      {/* Admin: Säsongsnotis */}
+      {currentUser.isAdmin && (
+        <div className="card card-pad" style={{ marginTop: '1.5rem', borderLeft: '3px solid var(--pine-soft)', borderRadius: '0 var(--r-lg) var(--r-lg) 0' }}>
+          <h3 style={{ fontSize: '1rem', marginBottom: 6 }}>📧 Skicka säsongsnotis</h3>
+          <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 12, lineHeight: 1.6 }}>
+            Skickar mejl till alla medlemmar om att bokningssäsongen är öppen. Den som är först i turordningen får ett "Det är din tur"-mejl, övriga får info om vem som bokar först.
+          </p>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button className="btn" onClick={() => { onNotifySeason('winter'); setNotifySent('winter'); setTimeout(() => setNotifySent(null), 4000) }}>
+              ❄️ Notifiera — Vintersäsongen öppen
+            </button>
+            <button className="btn" onClick={() => { onNotifySeason('summer'); setNotifySent('summer'); setTimeout(() => setNotifySent(null), 4000) }}>
+              ☀️ Notifiera — Sommarsäsongen öppen
+            </button>
+          </div>
+          {notifySent && (
+            <div className="notice notice-success" style={{ marginTop: 12 }}>
+              ✓ Mejl skickade till alla medlemmar med e-postadress!
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Admin: Redigera medlemmar */}
       {currentUser.isAdmin && (

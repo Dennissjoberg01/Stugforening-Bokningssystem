@@ -226,6 +226,26 @@ export default function App() {
     setState(prev => ({ ...prev, summerOrder: newOrder }))
   }
 
+  // ── Admin: skicka säsongsnotis ──
+  function handleNotifySeason(season) {
+    if (!currentUser?.isAdmin) return
+    const order = season === 'winter' ? state.winterOrder : state.summerOrder
+    const firstId = order[0]
+    const seasonName = season === 'winter' ? 'vinter' : 'sommar'
+    const firstName = members.find(m => m.id === firstId)?.name ?? ''
+    members.filter(m => m.email).forEach(m => {
+      if (m.id === firstId) {
+        ejSend(EJ_TURN, m, { from_name: 'Stugföreningen', season: seasonName })
+      } else {
+        ejSend(EJ_NOTIFY, m, {
+          from_name: 'Stugföreningen',
+          message: `meddelar att bokningen av ${seasonName}veckor nu är öppen! Det är ${firstName}s tur att boka sin vecka först. Du får ett mejl när det är din tur.`,
+          date: '',
+        })
+      }
+    })
+  }
+
   // ── Admin: skifta till nästa år ──
   async function handleNextYear() {
     if (!currentUser?.isAdmin) return
@@ -362,6 +382,7 @@ export default function App() {
             onUpdateMember={handleUpdateMember}
             onReorderWinter={handleReorderWinter}
             onReorderSummer={handleReorderSummer}
+            onNotifySeason={handleNotifySeason}
           />
         )}
         {page === 'min-sida' && (
