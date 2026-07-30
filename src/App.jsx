@@ -5,6 +5,12 @@ import {
   rotateOrder,
 } from './data.js'
 import { supabase } from './supabase.js'
+import emailjs from '@emailjs/browser'
+
+const EJ_SERVICE = 'service_lk9fzfk'
+const EJ_TURN    = 'template_hcgatso'
+const EJ_NOTIFY  = 'template_v4uxcbb'
+emailjs.init('Ff4tdAEELanj5_oiI')
 import Login from './components/Login.jsx'
 import Topbar from './components/Topbar.jsx'
 import Overview from './components/Overview.jsx'
@@ -239,29 +245,57 @@ export default function App() {
   const winterWeeks = getWinterWeeks(state?.year ?? 2025)
   const summerWeeks = getSummerWeeks(state?.year ?? 2025)
 
-  // ── E-post (simulerad) ──
+  // ── E-post via EmailJS ──
   const members = state?.members ?? []
 
+  function ejSend(templateId, toMember, params) {
+    if (!toMember?.email) return
+    emailjs.send(EJ_SERVICE, templateId, {
+      to_name: toMember.name,
+      to_email: toMember.email,
+      ...params,
+    }).catch(err => console.error('E-post misslyckades:', err))
+  }
+
   function sendCancellationEmail(bookingKey, byName) {
-    const season = bookingKey.startsWith('winter') ? 'vinter' : 'sommar'
-    const weeks = bookingKey.startsWith('winter') ? winterWeeks : summerWeeks
-    const weekInfo = weeks.find(w => `winter_w${w.n}` === bookingKey || `summer_w${w.n}` === bookingKey)
-    console.log(`📧 [SIMULERAD E-POST] till alla: "${byName} har avbokat sin ${season}vecka ${weekInfo?.label}."`)
+    const isWinter = bookingKey.startsWith('winter')
+    const weeks = isWinter ? winterWeeks : summerWeeks
+    const weekInfo = weeks.find(w => `${isWinter ? 'winter' : 'summer'}_w${w.n}` === bookingKey)
+    const season = isWinter ? 'vinter' : 'sommar'
+    members.filter(m => m.email).forEach(m =>
+      ejSend(EJ_NOTIFY, m, {
+        from_name: byName,
+        message: `har avbokat sin ${season}vecka (${weekInfo?.label ?? ''}). Veckan är nu ledig!`,
+        date: '',
+      })
+    )
   }
 
   function sendEarlyDepartureEmail(date, memberId, fromName) {
     const member = members.find(m => m.id === memberId)
-    console.log(`📧 [SIMULERAD E-POST] till ${member?.name} (${member?.email}):\n"${fromName} lämnar stugan tidigt den ${date}. Stugan är tillgänglig från det datumet!"`)
+    ejSend(EJ_NOTIFY, member, {
+      from_name: fromName,
+      message: `lämnar stugan tidigt den ${date}. Stugan är tillgänglig från det datumet!`,
+      date,
+    })
   }
 
   function sendEarlyDepartureEmailAll(date, fromName) {
-    console.log(`📧 [SIMULERAD E-POST] till alla medlemmar:\n"${fromName} lämnar stugan tidigt den ${date}. Veckan är ledig från det datumet — passa på att boka en extra vecka!"`)
+    members.filter(m => m.email).forEach(m =>
+      ejSend(EJ_NOTIFY, m, {
+        from_name: fromName,
+        message: `lämnar stugan tidigt den ${date}. Veckan är ledig från det datumet — passa på att boka en extra vecka!`,
+        date,
+      })
+    )
   }
 
   function sendTurnEmail(season, memberId) {
     const member = members.find(m => m.id === memberId)
-    const seasonName = season === 'winter' ? 'vinter' : 'sommar'
-    console.log(`📧 [SIMULERAD E-POST] till ${member?.name} (${member?.email}): "Det är nu din tur att boka din ${seasonName}vecka!"`)
+    ejSend(EJ_TURN, member, {
+      from_name: 'Stugföreningen',
+      season: season === 'winter' ? 'vinter' : 'sommar',
+    })
   }
 
   // ── Laddningsskärm ──

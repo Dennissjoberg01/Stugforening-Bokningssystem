@@ -87,7 +87,7 @@ export default function MinSida({
 
       {cancelledNotice && (
         <div className="notice notice-warn" style={{ marginBottom: '1rem' }}>
-          ✓ Veckan har avbokats och alla medlemmar har fått en e-postnotis (simulerad).
+          ✓ Veckan har avbokats och alla medlemmar har fått en e-postnotis.
         </div>
       )}
 
@@ -152,18 +152,6 @@ export default function MinSida({
         />
       )}
 
-      {/* E-post-info */}
-      <div className="card card-pad" style={{ marginTop: '2rem', borderLeft: '3px solid var(--pine-soft)', borderRadius: '0 var(--r-lg) var(--r-lg) 0' }}>
-        <h3 style={{ fontSize: '1rem', marginBottom: 6 }}>📧 E-postnotiser</h3>
-        <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.7 }}>
-          Just nu simuleras e-postnotiser i webbläsarkonsolen (F12). För att aktivera
-          riktiga mejl: skapa ett gratis konto på{' '}
-          <a href="https://www.emailjs.com" target="_blank" rel="noopener noreferrer"
-            style={{ color: 'var(--pine)', fontWeight: 500 }}>EmailJS.com</a>{' '}
-          och lägg in din Service ID + Template ID i koden.
-        </p>
-      </div>
-
       {/* Lämnar tidigt-dialog */}
       {earlyDepKey && (
         <div
@@ -207,7 +195,7 @@ export default function MinSida({
 
       {earlyDepSaved && (
         <div className="notice notice-success" style={{ marginBottom: '1rem' }}>
-          ✓ Sparat! Mejl har skickats till berörd part (simulerat).
+          ✓ Sparat! Mejl har skickats till berörd part.
         </div>
       )}
 
