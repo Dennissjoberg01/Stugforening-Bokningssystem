@@ -234,7 +234,7 @@ export default function App() {
       await emailjs.send(EJ_SERVICE, EJ_NOTIFY, {
         to_name: target.name,
         to_email: target.email,
-        from_name: 'Stugföreningen',
+        from_name: 'Hemfjällsklubben',
         message: 'skickar ett testmejl från bokningssystemet. Om du ser detta fungerar e-posten!',
         date: '',
       }, { publicKey: EJ_KEY })
@@ -253,10 +253,10 @@ export default function App() {
     const firstName = members.find(m => m.id === firstId)?.name ?? ''
     members.filter(m => m.email).forEach(m => {
       if (m.id === firstId) {
-        ejSend(EJ_TURN, m, { from_name: 'Stugföreningen', season: seasonName })
+        ejSend(EJ_TURN, m, { from_name: 'Hemfjällsklubben', season: seasonName })
       } else {
         ejSend(EJ_NOTIFY, m, {
-          from_name: 'Stugföreningen',
+          from_name: 'Hemfjällsklubben',
           message: `meddelar att bokningen av ${seasonName}veckor nu är öppen! Det är ${firstName}s tur att boka sin vecka först. Du får ett mejl när det är din tur.`,
           date: '',
         })
@@ -333,7 +333,7 @@ export default function App() {
   function sendTurnEmail(season, memberId) {
     const member = members.find(m => m.id === memberId)
     ejSend(EJ_TURN, member, {
-      from_name: 'Stugföreningen',
+      from_name: 'Hemfjällsklubben',
       season: season === 'winter' ? 'vinter' : 'sommar',
     })
   }

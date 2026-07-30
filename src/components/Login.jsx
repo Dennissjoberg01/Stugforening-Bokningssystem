@@ -17,7 +17,7 @@ export default function Login({ members, onLogin }) {
     <div className="login-wrap">
       <div className="login-box">
         <div className="login-logo">🏡</div>
-        <h1>Stugförening Furustigen 31</h1>
+        <h1>Hemfjällsklubben bokning</h1>
         <p>Logga in med din andel och PIN-kod</p>
 
         <form onSubmit={handleSubmit}>

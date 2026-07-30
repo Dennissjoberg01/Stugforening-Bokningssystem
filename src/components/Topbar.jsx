@@ -7,7 +7,7 @@ export default function Topbar({ user, page, onNav, onLogout }) {
 
   return (
     <div className="topbar">
-      <span className="topbar-title">🏡 Stugförening Furustigen 31</span>
+      <span className="topbar-title">🏡 Hemfjällsklubben bokning</span>
       <nav className="topbar-nav">
         {navItems.map(item => (
           <button
