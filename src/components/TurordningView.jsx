@@ -3,11 +3,12 @@ import { useState, useRef } from 'react'
 export default function TurordningView({
   state, currentUser, members,
   onNextYear, onChangePin, onUpdateMember,
-  onReorderWinter, onReorderSummer, onNotifySeason,
+  onReorderWinter, onReorderSummer, onNotifySeason, onTestEmail,
 }) {
   const [confirming, setConfirming] = useState(false)
   const [shifted, setShifted] = useState(false)
   const [notifySent, setNotifySent] = useState(null)
+  const [testStatus, setTestStatus] = useState(null)
 
   // PIN edits
   const [pinEdits, setPinEdits] = useState({})
@@ -198,6 +199,23 @@ export default function TurordningView({
               ✓ Mejl skickade till alla medlemmar med e-postadress!
             </div>
           )}
+          <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
+            <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 8 }}>
+              Testa att e-post fungerar — skickar ett testmejl till första andelen med e-postadress.
+            </p>
+            <button className="btn" onClick={async () => {
+              setTestStatus('Skickar…')
+              const result = await onTestEmail()
+              setTestStatus(result)
+            }}>
+              📧 Skicka testmejl
+            </button>
+            {testStatus && (
+              <div className={`notice ${testStatus.startsWith('✅') ? 'notice-success' : 'notice-warn'}`} style={{ marginTop: 10 }}>
+                {testStatus}
+              </div>
+            )}
+          </div>
         </div>
       )}
 

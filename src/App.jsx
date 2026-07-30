@@ -226,6 +226,24 @@ export default function App() {
     setState(prev => ({ ...prev, summerOrder: newOrder }))
   }
 
+  // ── Admin: testa e-post direkt ──
+  async function handleTestEmail() {
+    const target = members.find(m => m.email)
+    if (!target) return 'Ingen andel har e-postadress inlagd.'
+    try {
+      await emailjs.send(EJ_SERVICE, EJ_NOTIFY, {
+        to_name: target.name,
+        to_email: target.email,
+        from_name: 'Stugföreningen',
+        message: 'skickar ett testmejl från bokningssystemet. Om du ser detta fungerar e-posten!',
+        date: '',
+      }, { publicKey: EJ_KEY })
+      return `✅ Skickat till ${target.email}`
+    } catch (err) {
+      return `❌ Fel: ${err?.text || err?.message || JSON.stringify(err)}`
+    }
+  }
+
   // ── Admin: skicka säsongsnotis ──
   function handleNotifySeason(season) {
     if (!currentUser?.isAdmin) return
@@ -385,6 +403,7 @@ export default function App() {
             onReorderWinter={handleReorderWinter}
             onReorderSummer={handleReorderSummer}
             onNotifySeason={handleNotifySeason}
+            onTestEmail={handleTestEmail}
           />
         )}
         {page === 'min-sida' && (
