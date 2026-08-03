@@ -6,6 +6,10 @@
     },
     {
       "path": "/api/notify-season",
+      "schedule": "0 8 1 11 *"
+    },
+    {
+      "path": "/api/notify-season",
       "schedule": "0 8 1 12 *"
     }
   ]

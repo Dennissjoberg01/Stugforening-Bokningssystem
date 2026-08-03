@@ -25,6 +25,7 @@ function rowsToState(settings, memberRows, bookingRows) {
   }
   return {
     year: settings.year,
+    winterYear: settings.winter_year ?? settings.year,
     winterOrder: settings.winter_order,
     summerOrder: settings.summer_order,
     bookings,
@@ -76,11 +77,12 @@ export default function App() {
 
   // ── Deadlines ──
   const today = new Date()
-  const year = state?.year ?? 2025
-  const isSummerNotOpen = today < new Date(year - 1, 11, 1)  // öppnar 1 dec föregående år
-  const isSummerLocked  = today >= new Date(year, 2, 1)      // stänger 1 mar (deadline 28 feb)
-  const isWinterNotOpen = today < new Date(year, 6, 1)       // öppnar 1 jul
-  const isWinterLocked  = today >= new Date(year, 9, 1)      // stänger 1 okt (deadline 30 sep)
+  const summerYear = state?.year ?? 2025
+  const winterYear = state?.winterYear ?? summerYear
+  const isSummerNotOpen = today < new Date(summerYear - 1, 11, 1)  // öppnar 1 dec föregående år
+  const isSummerLocked  = today >= new Date(summerYear, 2, 1)      // stänger 1 mar (deadline 28 feb)
+  const isWinterNotOpen = today < new Date(winterYear, 6, 1)       // öppnar 1 jul
+  const isWinterLocked  = today >= new Date(winterYear, 9, 1)      // stänger 1 okt (deadline 30 sep)
 
   // ── Hjälpfunktioner ──
   function getCurrentTurnId(season, bookings = state?.bookings ?? {}) {
@@ -283,9 +285,9 @@ export default function App() {
     setState(prev => ({ ...prev, year: newYear, winterOrder: newWinter, summerOrder: newSummer, bookings: {} }))
   }
 
-  // ── Veckodefinitioner med rätt årstal ──
-  const winterWeeks = getWinterWeeks(state?.year ?? 2025)
-  const summerWeeks = getSummerWeeks(state?.year ?? 2025)
+  // ── Veckodefinitioner med rätt årstal per säsong ──
+  const winterWeeks = getWinterWeeks(winterYear)
+  const summerWeeks = getSummerWeeks(summerYear)
 
   // ── E-post via EmailJS ──
   const members = state?.members ?? []
