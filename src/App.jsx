@@ -106,6 +106,11 @@ export default function App() {
     )
   }
 
+  function hasPassedTurn(season, uid = currentUser?.id, bookings = state?.bookings ?? {}) {
+    const pass = bookings[`${season}_pass_${uid}`]
+    return !!(pass && !pass.cancelled)
+  }
+
   // ── Logga in ──
   function handleLogin(member, pin) {
     if (member.pin !== pin) return 'Fel PIN-kod'
@@ -132,6 +137,36 @@ export default function App() {
       bookings: { ...prev.bookings, [bookingKey]: { ...booking, cancelled: true } },
     }))
     sendCancellationEmail(bookingKey, currentUser.name)
+  }
+
+  // ── Avstår ──
+  async function handlePass(season) {
+    if (!currentUser) return
+    const isLocked  = season === 'winter' ? isWinterLocked  : isSummerLocked
+    const isNotOpen = season === 'winter' ? isWinterNotOpen : isSummerNotOpen
+    if (isLocked || isNotOpen) return
+    if (getCurrentTurnId(season) !== currentUser.id) return
+    if (hasPrimaryBooking(season)) return
+
+    const passKey    = `${season}_pass_${currentUser.id}`
+    const passRecord = { memberId: currentUser.id, cancelled: false, isExtra: false }
+
+    await supabase.from('bookings').upsert({
+      booking_key: passKey, member_id: currentUser.id, cancelled: false, is_extra: false,
+    })
+
+    const newBookings = { ...state.bookings, [passKey]: passRecord }
+    setState(prev => ({ ...prev, bookings: newBookings }))
+
+    // Meddela nästa person i turordningen
+    const order  = season === 'winter' ? state.winterOrder : state.summerOrder
+    const nextId = order.find(id =>
+      id !== currentUser.id &&
+      !Object.entries(newBookings).some(
+        ([key, b]) => key.startsWith(season) && b.memberId === id && !b.cancelled && !b.isExtra
+      )
+    )
+    if (nextId) sendTurnEmail(season, nextId)
   }
 
   // ── Boka vecka ──
@@ -373,6 +408,8 @@ export default function App() {
   const hasPS = hasPrimaryBooking('summer')
   const hasEW = hasExtraBooking('winter')
   const hasES = hasExtraBooking('summer')
+  const hasPaW = hasPassedTurn('winter')
+  const hasPaS = hasPassedTurn('summer')
   const winterTurnId = getCurrentTurnId('winter')
   const summerTurnId = getCurrentTurnId('summer')
 
@@ -388,6 +425,7 @@ export default function App() {
             winterWeeks={winterWeeks}
             summerWeeks={summerWeeks}
             onBookFree={handleBookFree}
+            onPass={handlePass}
             isWinterNotOpen={isWinterNotOpen}
             isSummerNotOpen={isSummerNotOpen}
             isWinterLocked={isWinterLocked}
@@ -396,6 +434,8 @@ export default function App() {
             hasPrimarySummer={hasPS}
             hasExtraWinter={hasEW}
             hasExtraSummer={hasES}
+            hasPassedWinter={hasPaW}
+            hasPassedSummer={hasPaS}
             winterTurnId={winterTurnId}
             summerTurnId={summerTurnId}
           />
@@ -424,6 +464,7 @@ export default function App() {
             onCancel={handleCancel}
             onBookFree={handleBookFree}
             onEarlyDeparture={handleEarlyDeparture}
+            onPass={handlePass}
             isWinterNotOpen={isWinterNotOpen}
             isSummerNotOpen={isSummerNotOpen}
             isWinterLocked={isWinterLocked}
@@ -432,6 +473,8 @@ export default function App() {
             hasPrimarySummer={hasPS}
             hasExtraWinter={hasEW}
             hasExtraSummer={hasES}
+            hasPassedWinter={hasPaW}
+            hasPassedSummer={hasPaS}
             winterTurnId={winterTurnId}
             summerTurnId={summerTurnId}
           />

@@ -4,7 +4,10 @@ function getMemberName(members, id) {
   return members.find(m => m.id === id)?.name || '—'
 }
 
-function SeasonBanner({ season, isNotOpen, isLocked, isMyTurn, hasPrimary, hasExtra, turnName }) {
+function SeasonBanner({ season, isNotOpen, isLocked, isMyTurn, hasPrimary, hasPassed, hasExtra, turnName, onPass }) {
+  const [confirmPass, setConfirmPass] = useState(false)
+  const seasonSv = season === 'winter' ? 'vinter' : 'sommar'
+
   if (isNotOpen) {
     const openDate = season === 'winter' ? '1 juli' : '1 december'
     return (
@@ -21,17 +24,47 @@ function SeasonBanner({ season, isNotOpen, isLocked, isMyTurn, hasPrimary, hasEx
       </div>
     )
   }
+  if (hasPassed) {
+    return (
+      <div className="notice notice-info" style={{ marginBottom: '0.75rem', fontSize: 13 }}>
+        Du har avstått din {seasonSv}bokning i år. Lediga veckor kan bokas som extra efter deadline.
+      </div>
+    )
+  }
   if (hasPrimary) {
     return (
       <div className="notice notice-info" style={{ marginBottom: '0.75rem', fontSize: 13 }}>
-        ✓ Du har bokat din {season === 'winter' ? 'vinter' : 'sommar'}vecka. Avboka på Min sida om du vill byta.
+        ✓ Du har bokat din {seasonSv}vecka. Avboka på Min sida om du vill byta.
       </div>
     )
   }
   if (isMyTurn) {
     return (
       <div className="notice notice-success" style={{ marginBottom: '0.75rem', fontSize: 13 }}>
-        🎉 Det är din tur att boka! Välj en ledig vecka nedan.
+        {!confirmPass ? (
+          <>
+            <div>🎉 Det är din tur att boka! Välj en ledig vecka nedan.</div>
+            <button
+              className="btn btn-sm"
+              style={{ marginTop: 8, background: 'transparent', border: '1px solid currentColor', color: 'inherit', fontSize: 12 }}
+              onClick={() => setConfirmPass(true)}
+            >
+              Avstår — hoppa över min tur
+            </button>
+          </>
+        ) : (
+          <>
+            <div style={{ marginBottom: 8 }}>
+              Är du säker? Din tur går vidare till nästa i listan. Du kan inte boka en {seasonSv}vecka i år.
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="btn btn-sm btn-danger" onClick={() => { onPass(season); setConfirmPass(false) }}>
+                Ja, jag avstår
+              </button>
+              <button className="btn btn-sm" onClick={() => setConfirmPass(false)}>Avbryt</button>
+            </div>
+          </>
+        )}
       </div>
     )
   }
@@ -158,11 +191,12 @@ function WeekList({
 }
 
 export default function Overview({
-  state, currentUser, members, winterWeeks, summerWeeks, onBookFree,
+  state, currentUser, members, winterWeeks, summerWeeks, onBookFree, onPass,
   isWinterNotOpen, isSummerNotOpen,
   isWinterLocked, isSummerLocked,
   hasPrimaryWinter, hasPrimarySummer,
   hasExtraWinter, hasExtraSummer,
+  hasPassedWinter, hasPassedSummer,
   winterTurnId, summerTurnId,
 }) {
   const booked = Object.values(state.bookings).filter(b => !b.cancelled).length
@@ -205,8 +239,10 @@ export default function Overview({
               isLocked={isWinterLocked}
               isMyTurn={isMyWinterTurn}
               hasPrimary={hasPrimaryWinter}
+              hasPassed={hasPassedWinter}
               hasExtra={hasExtraWinter}
               turnName={winterTurnName}
+              onPass={onPass}
             />
           )}
           <WeekList
@@ -241,8 +277,10 @@ export default function Overview({
               isLocked={isSummerLocked}
               isMyTurn={isMySummerTurn}
               hasPrimary={hasPrimarySummer}
+              hasPassed={hasPassedSummer}
               hasExtra={hasExtraSummer}
               turnName={summerTurnName}
+              onPass={onPass}
             />
           )}
           <WeekList

@@ -1,10 +1,12 @@
 import { useState } from 'react'
 
 export default function MinSida({
-  state, currentUser, members, winterWeeks, summerWeeks, onCancel, onBookFree, onEarlyDeparture,
+  state, currentUser, members, winterWeeks, summerWeeks, onCancel, onBookFree, onEarlyDeparture, onPass,
+  isWinterNotOpen, isSummerNotOpen,
   isWinterLocked, isSummerLocked,
   hasPrimaryWinter, hasPrimarySummer,
   hasExtraWinter, hasExtraSummer,
+  hasPassedWinter, hasPassedSummer,
   winterTurnId, summerTurnId,
 }) {
   const [cancelConfirm, setCancelConfirm] = useState(null)
@@ -43,8 +45,10 @@ export default function MinSida({
   const winterPos = state.winterOrder.indexOf(currentUser.id) + 1
   const summerPos = state.summerOrder.indexOf(currentUser.id) + 1
   const totalMembers = members.length
-  const isMyWinterTurn = winterTurnId === currentUser.id
-  const isMySummerTurn = summerTurnId === currentUser.id
+  const isMyWinterTurn  = winterTurnId === currentUser.id
+  const isMySummerTurn  = summerTurnId === currentUser.id
+  const [passConfirmW, setPassConfirmW] = useState(false)
+  const [passConfirmS, setPassConfirmS] = useState(false)
 
   return (
     <div>
@@ -62,19 +66,55 @@ export default function MinSida({
           <div>
             <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Turordning vinter</div>
             <div style={{ fontSize: 17, fontWeight: 500, marginTop: 2 }}>Plats {winterPos} av {totalMembers}</div>
-            {!isWinterLocked && !hasPrimaryWinter && (
-              <div style={{ fontSize: 12, marginTop: 3, color: isMyWinterTurn ? 'var(--green)' : 'var(--muted)' }}>
-                {isMyWinterTurn ? '🎉 Din tur att boka!' : '⏳ Väntar på din tur'}
-              </div>
+            {hasPassedWinter ? (
+              <div style={{ fontSize: 12, marginTop: 3, color: 'var(--muted)' }}>Har avstått</div>
+            ) : !isWinterLocked && !isWinterNotOpen && !hasPrimaryWinter && (
+              <>
+                <div style={{ fontSize: 12, marginTop: 3, color: isMyWinterTurn ? 'var(--green)' : 'var(--muted)' }}>
+                  {isMyWinterTurn ? '🎉 Din tur att boka!' : '⏳ Väntar på din tur'}
+                </div>
+                {isMyWinterTurn && !passConfirmW && (
+                  <button className="btn btn-sm" style={{ marginTop: 6, fontSize: 11 }} onClick={() => setPassConfirmW(true)}>
+                    Avstår
+                  </button>
+                )}
+                {isMyWinterTurn && passConfirmW && (
+                  <div style={{ marginTop: 6, fontSize: 12 }}>
+                    <div style={{ marginBottom: 4 }}>Hoppa över din tur i år?</div>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button className="btn btn-sm btn-danger" onClick={() => { onPass('winter'); setPassConfirmW(false) }}>Ja</button>
+                      <button className="btn btn-sm" onClick={() => setPassConfirmW(false)}>Avbryt</button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
           <div>
             <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Turordning sommar</div>
             <div style={{ fontSize: 17, fontWeight: 500, marginTop: 2 }}>Plats {summerPos} av {totalMembers}</div>
-            {!isSummerLocked && !hasPrimarySummer && (
-              <div style={{ fontSize: 12, marginTop: 3, color: isMySummerTurn ? 'var(--green)' : 'var(--muted)' }}>
-                {isMySummerTurn ? '🎉 Din tur att boka!' : '⏳ Väntar på din tur'}
-              </div>
+            {hasPassedSummer ? (
+              <div style={{ fontSize: 12, marginTop: 3, color: 'var(--muted)' }}>Har avstått</div>
+            ) : !isSummerLocked && !isSummerNotOpen && !hasPrimarySummer && (
+              <>
+                <div style={{ fontSize: 12, marginTop: 3, color: isMySummerTurn ? 'var(--green)' : 'var(--muted)' }}>
+                  {isMySummerTurn ? '🎉 Din tur att boka!' : '⏳ Väntar på din tur'}
+                </div>
+                {isMySummerTurn && !passConfirmS && (
+                  <button className="btn btn-sm" style={{ marginTop: 6, fontSize: 11 }} onClick={() => setPassConfirmS(true)}>
+                    Avstår
+                  </button>
+                )}
+                {isMySummerTurn && passConfirmS && (
+                  <div style={{ marginTop: 6, fontSize: 12 }}>
+                    <div style={{ marginBottom: 4 }}>Hoppa över din tur i år?</div>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button className="btn btn-sm btn-danger" onClick={() => { onPass('summer'); setPassConfirmS(false) }}>Ja</button>
+                      <button className="btn btn-sm" onClick={() => setPassConfirmS(false)}>Avbryt</button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -91,9 +131,20 @@ export default function MinSida({
         </div>
       )}
 
-      {myBookings.length === 0 ? (
+      {hasPassedWinter && (
+        <div className="notice notice-info" style={{ marginBottom: '0.75rem', fontSize: 13 }}>
+          Du har avstått din vinterbokning i år.
+        </div>
+      )}
+      {hasPassedSummer && (
+        <div className="notice notice-info" style={{ marginBottom: '0.75rem', fontSize: 13 }}>
+          Du har avstått din sommarbokning i år.
+        </div>
+      )}
+
+      {myBookings.length === 0 && !hasPassedWinter && !hasPassedSummer ? (
         <p className="empty">Du har inga bokningar för {state.year} ännu.</p>
-      ) : (
+      ) : myBookings.length > 0 && (
         <div className="my-bookings-list">
           {myBookings.map(w => {
             const bk = state.bookings[w.key]
