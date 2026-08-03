@@ -77,8 +77,10 @@ export default function App() {
   // ── Deadlines ──
   const today = new Date()
   const year = state?.year ?? 2025
-  const isSummerLocked = today >= new Date(year, 3, 1)   // 1 april
-  const isWinterLocked = today >= new Date(year, 9, 1)   // 1 oktober
+  const isSummerNotOpen = today < new Date(year - 1, 11, 1)  // öppnar 1 dec föregående år
+  const isSummerLocked  = today >= new Date(year, 2, 1)      // stänger 1 mar (deadline 28 feb)
+  const isWinterNotOpen = today < new Date(year, 6, 1)       // öppnar 1 jul
+  const isWinterLocked  = today >= new Date(year, 9, 1)      // stänger 1 okt (deadline 30 sep)
 
   // ── Hjälpfunktioner ──
   function getCurrentTurnId(season, bookings = state?.bookings ?? {}) {
@@ -137,6 +139,8 @@ export default function App() {
     const isLocked = season === 'winter' ? isWinterLocked : isSummerLocked
 
     if (!currentUser.isAdmin) {
+      const isNotOpen = season === 'winter' ? isWinterNotOpen : isSummerNotOpen
+      if (isNotOpen) return
       if (!isLocked) {
         if (getCurrentTurnId(season) !== currentUser.id) return
         if (hasPrimaryBooking(season)) return
@@ -382,6 +386,8 @@ export default function App() {
             winterWeeks={winterWeeks}
             summerWeeks={summerWeeks}
             onBookFree={handleBookFree}
+            isWinterNotOpen={isWinterNotOpen}
+            isSummerNotOpen={isSummerNotOpen}
             isWinterLocked={isWinterLocked}
             isSummerLocked={isSummerLocked}
             hasPrimaryWinter={hasPW}
@@ -416,6 +422,8 @@ export default function App() {
             onCancel={handleCancel}
             onBookFree={handleBookFree}
             onEarlyDeparture={handleEarlyDeparture}
+            isWinterNotOpen={isWinterNotOpen}
+            isSummerNotOpen={isSummerNotOpen}
             isWinterLocked={isWinterLocked}
             isSummerLocked={isSummerLocked}
             hasPrimaryWinter={hasPW}

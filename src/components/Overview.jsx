@@ -4,7 +4,15 @@ function getMemberName(members, id) {
   return members.find(m => m.id === id)?.name || '—'
 }
 
-function SeasonBanner({ season, isLocked, isMyTurn, hasPrimary, hasExtra, turnName }) {
+function SeasonBanner({ season, isNotOpen, isLocked, isMyTurn, hasPrimary, hasExtra, turnName }) {
+  if (isNotOpen) {
+    const openDate = season === 'winter' ? '1 juli' : '1 december'
+    return (
+      <div className="notice notice-info" style={{ marginBottom: '0.75rem', fontSize: 13 }}>
+        ⏳ Bokning öppnar {openDate}. Du får ett mejl när det är dags!
+      </div>
+    )
+  }
   if (isLocked) {
     return (
       <div className="notice notice-warn" style={{ marginBottom: '0.75rem', fontSize: 13 }}>
@@ -36,7 +44,7 @@ function SeasonBanner({ season, isLocked, isMyTurn, hasPrimary, hasExtra, turnNa
 
 function WeekList({
   weeks, season, bookings, members, currentUser, onBookFree,
-  isLocked, hasPrimary, hasExtra, isMyTurn,
+  isNotOpen, isLocked, hasPrimary, hasExtra, isMyTurn,
 }) {
   const [confirmKey, setConfirmKey] = useState(null)
 
@@ -55,6 +63,8 @@ function WeekList({
         if (isFree) {
           if (currentUser.isAdmin) {
             canBook = true
+          } else if (isNotOpen) {
+            blockReason = 'not-open-yet'
           } else if (!isLocked) {
             if (hasPrimary) blockReason = 'already-primary'
             else if (!isMyTurn) blockReason = 'not-your-turn'
@@ -91,6 +101,7 @@ function WeekList({
 
         const dimmed = isFree && !canBook && !currentUser.isAdmin
         const title =
+          blockReason === 'not-open-yet' ? (season === 'winter' ? 'Bokning öppnar 1 juli' : 'Bokning öppnar 1 december') :
           blockReason === 'already-primary' ? 'Du har redan bokat din vecka denna säsong' :
           blockReason === 'not-your-turn' ? 'Väntar på din tur i turordningen' :
           canBook ? 'Klicka för att boka' : ''
@@ -148,6 +159,7 @@ function WeekList({
 
 export default function Overview({
   state, currentUser, members, winterWeeks, summerWeeks, onBookFree,
+  isWinterNotOpen, isSummerNotOpen,
   isWinterLocked, isSummerLocked,
   hasPrimaryWinter, hasPrimarySummer,
   hasExtraWinter, hasExtraSummer,
@@ -180,15 +192,16 @@ export default function Overview({
           <div className="cal-header">
             <span>❄️</span>
             <div>
-              <h3>Vinterveckor <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--muted)' }}>dec–maj</span></h3>
-              <p style={{ fontSize: 11, color: isWinterLocked ? 'var(--amber)' : 'var(--green)', marginTop: 2, fontWeight: 500 }}>
-                {isWinterLocked ? '🔒 Stängd — deadline 1 okt passerad' : '🟢 Öppen — deadline 1 okt'}
+              <h3>Vinterveckor <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--muted)' }}>nov–jun</span></h3>
+              <p style={{ fontSize: 11, color: isWinterNotOpen ? 'var(--muted)' : isWinterLocked ? 'var(--amber)' : 'var(--green)', marginTop: 2, fontWeight: 500 }}>
+                {isWinterNotOpen ? '⏳ Öppnar 1 juli' : isWinterLocked ? '🔒 Stängd — deadline 30 sep passerad' : '🟢 Öppen — deadline 30 sep'}
               </p>
             </div>
           </div>
           {!currentUser.isAdmin && (
             <SeasonBanner
               season="winter"
+              isNotOpen={isWinterNotOpen}
               isLocked={isWinterLocked}
               isMyTurn={isMyWinterTurn}
               hasPrimary={hasPrimaryWinter}
@@ -203,6 +216,7 @@ export default function Overview({
             members={members}
             currentUser={currentUser}
             onBookFree={onBookFree}
+            isNotOpen={isWinterNotOpen}
             isLocked={isWinterLocked}
             hasPrimary={hasPrimaryWinter}
             hasExtra={hasExtraWinter}
@@ -214,15 +228,16 @@ export default function Overview({
           <div className="cal-header">
             <span>☀️</span>
             <div>
-              <h3>Sommarveckor <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--muted)' }}>jun–nov</span></h3>
-              <p style={{ fontSize: 11, color: isSummerLocked ? 'var(--amber)' : 'var(--green)', marginTop: 2, fontWeight: 500 }}>
-                {isSummerLocked ? '🔒 Stängd — deadline 1 apr passerad' : '🟢 Öppen — deadline 1 apr'}
+              <h3>Sommarveckor <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--muted)' }}>jun–okt</span></h3>
+              <p style={{ fontSize: 11, color: isSummerNotOpen ? 'var(--muted)' : isSummerLocked ? 'var(--amber)' : 'var(--green)', marginTop: 2, fontWeight: 500 }}>
+                {isSummerNotOpen ? '⏳ Öppnar 1 december' : isSummerLocked ? '🔒 Stängd — deadline 28 feb passerad' : '🟢 Öppen — deadline 28 feb'}
               </p>
             </div>
           </div>
           {!currentUser.isAdmin && (
             <SeasonBanner
               season="summer"
+              isNotOpen={isSummerNotOpen}
               isLocked={isSummerLocked}
               isMyTurn={isMySummerTurn}
               hasPrimary={hasPrimarySummer}
@@ -237,6 +252,7 @@ export default function Overview({
             members={members}
             currentUser={currentUser}
             onBookFree={onBookFree}
+            isNotOpen={isSummerNotOpen}
             isLocked={isSummerLocked}
             hasPrimary={hasPrimarySummer}
             hasExtra={hasExtraSummer}

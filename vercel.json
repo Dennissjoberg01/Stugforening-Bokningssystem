@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/notify-season",
+      "schedule": "0 8 1 7 *"
+    },
+    {
+      "path": "/api/notify-season",
+      "schedule": "0 8 1 12 *"
+    }
+  ]
+}

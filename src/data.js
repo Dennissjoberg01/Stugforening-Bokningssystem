@@ -66,24 +66,24 @@ function datumText(start, slut) {
   return `${sd} ${MÅN[sm]} ${sy} – ${ed} ${MÅN[em]} ${ey}`
 }
 
-// Vinterveckor: v.1–21 (jan–maj år+1) + v.49–52 (dec år), totalt 25 veckor
+// Vinterveckor: v.45–52 (nov–dec år) + v.1–22 (jan–jun år+1), totalt 30 veckor
 export function getWinterWeeks(year) {
   const veckor = []
-  for (const n of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21]) {
-    const { start, slut } = söndagPeriod(isoVeckaMåndag(year + 1, n))
+  for (const n of [45,46,47,48,49,50,51,52]) {
+    const { start, slut } = söndagPeriod(isoVeckaMåndag(year, n))
     veckor.push({ n, label: `v.${n}`, dates: datumText(start, slut) })
   }
-  for (const n of [49,50,51,52]) {
-    const { start, slut } = söndagPeriod(isoVeckaMåndag(year, n))
+  for (const n of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22]) {
+    const { start, slut } = söndagPeriod(isoVeckaMåndag(year + 1, n))
     veckor.push({ n, label: `v.${n}`, dates: datumText(start, slut) })
   }
   return veckor
 }
 
-// Sommarveckor: v.22–48 (maj–nov), totalt 27 veckor
+// Sommarveckor: v.23–44 (jun–okt), totalt 22 veckor
 export function getSummerWeeks(year) {
   const veckor = []
-  for (let n = 22; n <= 48; n++) {
+  for (let n = 23; n <= 44; n++) {
     const { start, slut } = söndagPeriod(isoVeckaMåndag(year, n))
     veckor.push({ n, label: `v.${n}`, dates: datumText(start, slut) })
   }
