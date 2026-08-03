@@ -58,7 +58,7 @@ async function ejSend(templateId, toEmail, toName, params) {
   })
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   const now   = new Date()
   const month = now.getMonth() + 1
   const day   = now.getDate()
