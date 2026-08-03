@@ -139,6 +139,18 @@ export default function App() {
     sendCancellationEmail(bookingKey, currentUser.name)
   }
 
+  // ── Återställ avstår (admin) ──
+  async function handleUndoPass(season, memberId) {
+    if (!currentUser?.isAdmin) return
+    const passKey = `${season}_pass_${memberId}`
+    await supabase.from('bookings').delete().eq('booking_key', passKey)
+    setState(prev => {
+      const newBookings = { ...prev.bookings }
+      delete newBookings[passKey]
+      return { ...prev, bookings: newBookings }
+    })
+  }
+
   // ── Avstår ──
   async function handlePass(season) {
     if (!currentUser) return
@@ -452,6 +464,7 @@ export default function App() {
             onReorderSummer={handleReorderSummer}
             onNotifySeason={handleNotifySeason}
             onTestEmail={handleTestEmail}
+            onUndoPass={handleUndoPass}
           />
         )}
         {page === 'min-sida' && (

@@ -3,7 +3,7 @@ import { useState, useRef } from 'react'
 export default function TurordningView({
   state, currentUser, members,
   onNextYear, onChangePin, onUpdateMember,
-  onReorderWinter, onReorderSummer, onNotifySeason, onTestEmail,
+  onReorderWinter, onReorderSummer, onNotifySeason, onTestEmail, onUndoPass,
 }) {
   const [confirming, setConfirming] = useState(false)
   const [shifted, setShifted] = useState(false)
@@ -218,6 +218,39 @@ export default function TurordningView({
           </div>
         </div>
       )}
+
+      {/* Admin: Återställ avstår */}
+      {currentUser.isAdmin && (() => {
+        const winterPasses = Object.entries(state.bookings)
+          .filter(([key, b]) => key.startsWith('winter_pass_') && !b.cancelled)
+          .map(([, b]) => b.memberId)
+        const summerPasses = Object.entries(state.bookings)
+          .filter(([key, b]) => key.startsWith('summer_pass_') && !b.cancelled)
+          .map(([, b]) => b.memberId)
+        if (winterPasses.length === 0 && summerPasses.length === 0) return null
+        return (
+          <div className="card card-pad" style={{ marginTop: '1.5rem' }}>
+            <h3 style={{ fontSize: '1rem', marginBottom: 4 }}>↩️ Återställ avstår</h3>
+            <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 12 }}>
+              Klicka Återställ för att låta en andel boka sin vecka ändå.
+            </p>
+            <div style={{ display: 'grid', gap: 8 }}>
+              {winterPasses.map(id => (
+                <div key={`w${id}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '6px 0', borderBottom: '1px solid var(--border)' }}>
+                  <span style={{ flex: 1, fontSize: 14 }}>❄️ <strong>{getMember(id).name}</strong> — har avstått vinter</span>
+                  <button className="btn btn-sm" onClick={() => onUndoPass('winter', id)}>Återställ</button>
+                </div>
+              ))}
+              {summerPasses.map(id => (
+                <div key={`s${id}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '6px 0', borderBottom: '1px solid var(--border)' }}>
+                  <span style={{ flex: 1, fontSize: 14 }}>☀️ <strong>{getMember(id).name}</strong> — har avstått sommar</span>
+                  <button className="btn btn-sm" onClick={() => onUndoPass('summer', id)}>Återställ</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Admin: Redigera medlemmar */}
       {currentUser.isAdmin && (
